@@ -1,71 +1,153 @@
 pub struct Constants;
 
 impl Constants {
-    pub const COMMENT_PREFIXES: [&'static str; 3] = ["//", "#", ";"];
+    /// Language-specific comment markers including single-line and multi-line comments
+    pub const COMMENT_MARKERS: &[(&'static str, &[&'static str])] = &[
+        ("Rust", &["//", "/*", "*/"]),
+        ("C", &["//", "/*", "*/"]),
+        ("C++", &["//", "/*", "*/"]),
+        ("Python", &["#", "'''", "\"\"\""]),
+        ("JavaScript", &["//", "/*", "*/"]),
+        ("TypeScript", &["//", "/*", "*/"]),
+        ("HTML", &["<!--", "-->"]),
+        ("CSS", &["/*", "*/"]),
+        ("SQL", &["--", "/*", "*/"]),
+        ("Ruby", &["#", "=begin", "=end"]),
+        ("Shell", &["#"]),
+        ("PHP", &["//", "#", "/*", "*/"]),
+        ("Perl", &["#", "=pod", "=cut"]),
+        ("Lua", &["--", "--[[", "]]"]),
+    ];
 
+    /// Maps file extensions to their corresponding programming languages
     pub const LANGUAGE_MAP: &[(&'static str, &'static str)] = &[
-        // General-purpose languages
+        // Systems Programming
         ("rs", "Rust"),
-        ("cpp", "C++"),
-        ("h", "C++"),
-        ("hpp", "C++"),
         ("c", "C"),
+        ("h", "C"),
+        ("cpp", "C++"),
+        ("hpp", "C++"),
+        ("cc", "C++"),
+        ("cxx", "C++"),
+        ("hxx", "C++"),
+        // Managed Languages
         ("cs", "C#"),
-        ("py", "Python"),
-        ("go", "Go"),
         ("java", "Java"),
+        ("class", "Java"),
+        ("scala", "Scala"),
+        ("kt", "Kotlin"),
+        ("kts", "Kotlin"),
+        ("swift", "Swift"),
+        ("go", "Go"),
+        // Scripting Languages
+        ("py", "Python"),
+        ("pyc", "Python"),
         ("rb", "Ruby"),
-        // Web development languages
+        ("php", "PHP"),
+        ("pl", "Perl"),
+        ("lua", "Lua"),
+        ("tcl", "Tcl"),
+        // Web Development
         ("js", "JavaScript"),
         ("jsx", "JavaScript (React)"),
         ("ts", "TypeScript"),
         ("tsx", "TypeScript (React)"),
         ("html", "HTML"),
+        ("htm", "HTML"),
         ("css", "CSS"),
         ("scss", "SCSS"),
         ("sass", "SASS"),
-        // Shell and scripting languages
+        ("less", "LESS"),
+        ("vue", "Vue"),
+        ("svelte", "Svelte"),
+        // Shell and Scripts
         ("sh", "Shell"),
         ("bash", "Bash"),
         ("zsh", "Zsh"),
+        ("fish", "Fish"),
         ("ps1", "PowerShell"),
+        ("psm1", "PowerShell"),
         ("bat", "Batch"),
-        // Data and configuration formats
+        ("cmd", "Batch"),
+        // Data and Config
         ("json", "JSON"),
         ("yml", "YAML"),
         ("yaml", "YAML"),
         ("xml", "XML"),
         ("toml", "TOML"),
         ("ini", "INI"),
-        // Database and query languages
+        ("conf", "Config"),
+        ("cfg", "Config"),
+        // Database
         ("sql", "SQL"),
         ("psql", "PostgreSQL"),
         ("mysql", "MySQL"),
-        // Additional file types
+        ("pgsql", "PostgreSQL"),
+        // Documentation
         ("md", "Markdown"),
+        ("rst", "reStructuredText"),
+        ("tex", "LaTeX"),
+        ("adoc", "AsciiDoc"),
+        // Other Languages
         ("r", "R"),
-        ("swift", "Swift"),
-        ("kt", "Kotlin"),
         ("dart", "Dart"),
-        ("php", "PHP"),
-        ("pl", "Perl"),
-        ("lua", "Lua"),
         ("m", "Objective-C"),
-        ("scala", "Scala"),
+        ("mm", "Objective-C++"),
         ("clj", "Clojure"),
+        ("fs", "F#"),
+        ("fsx", "F#"),
+        ("erl", "Erlang"),
+        ("ex", "Elixir"),
+        ("exs", "Elixir"),
+        ("elm", "Elm"),
+        ("hs", "Haskell"),
         ("jl", "Julia"),
-        ("rs", "Rust"),
     ];
 
-    // Commonly excluded files and directories
-    pub const EXCLUDED_FILES_AND_FOLDERS: [&'static str; 8] = [
-        "node_modules", // Node.js dependencies
-        "dist",         // Distribution folder
-        "target",       // Build output (Rust)
-        ".git",         // Git directory
-        ".idea",        // JetBrains IDE files
-        ".vscode",      // VSCode settings
-        "coverage",     // Test coverage reports
-        "build",        // General build directory
+    /// skip Common binary and generated file extensions
+
+    /// Files and directories to exclude from analysis
+    pub const EXCLUDED_FILES_AND_FOLDERS: &[&'static str] = &[
+        // Dependencies
+        "node_modules",
+        "target",
+        "vendor",
+        "packages",
+        "bower_components",
+        // Build outputs
+        "dist",
+        "build",
+        "out",
+        "bin",
+        "obj",
+        // Version Control
+        ".git",
+        ".svn",
+        ".hg",
+        ".bzr",
+        // IDE and Editor
+        ".idea",
+        ".vscode",
+        ".vs",
+        ".settings",
+        ".project",
+        ".classpath",
+        // Testing and Coverage
+        "coverage",
+        "__pycache__",
+        ".pytest_cache",
+        ".nyc_output",
+        // Logs and Temporary
+        "log",
+        "logs",
+        "tmp",
+        "temp",
+        ".cache",
+        // Documentation
+        "docs/_build",
+        "site-packages",
+        // Platform specific
+        ".DS_Store",
+        "Thumbs.db",
     ];
 }

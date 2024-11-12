@@ -1,4 +1,4 @@
-pub mod constants;
+ mod constants;
 
 use std::{env, path::Path, process};
 

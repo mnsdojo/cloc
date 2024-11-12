@@ -1,6 +1,6 @@
 pub struct Constants;
 
- impl Constants {
+impl Constants {
     pub const COMMENT_PREFIXES: [&'static str; 3] = ["//", "#", ";"];
 
     pub const LANGUAGE_MAP: &[(&'static str, &'static str)] = &[
@@ -55,5 +55,17 @@ pub struct Constants;
         ("clj", "Clojure"),
         ("jl", "Julia"),
         ("rs", "Rust"),
+    ];
+
+    // Commonly excluded files and directories
+    pub const EXCLUDED_FILES_AND_FOLDERS: [&'static str; 8] = [
+        "node_modules", // Node.js dependencies
+        "dist",         // Distribution folder
+        "target",       // Build output (Rust)
+        ".git",         // Git directory
+        ".idea",        // JetBrains IDE files
+        ".vscode",      // VSCode settings
+        "coverage",     // Test coverage reports
+        "build",        // General build directory
     ];
 }

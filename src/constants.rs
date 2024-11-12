@@ -105,6 +105,14 @@ impl Constants {
     ];
 
     /// skip Common binary and generated file extensions
+    pub const BINARY_EXTENSIONS: &[&'static str] = &[
+        "exe", "dll", "so", "dylib", "class", "jar", "war", "ear", "pyc", "pyo", "pyd", "o", "obj",
+        "a", "lib", "out",
+    ];
+
+    pub const MIN_FILE_SIZE: u64 = 1; // Skip empty files
+
+    pub const MAX_FILE_SIZE: u64 = 10 * 1024 * 1024;
 
     /// Files and directories to exclude from analysis
     pub const EXCLUDED_FILES_AND_FOLDERS: &[&'static str] = &[
@@ -150,4 +158,27 @@ impl Constants {
         ".DS_Store",
         "Thumbs.db",
     ];
+}
+
+impl Constants {
+    /// Check if a file extension is associated with a binary file
+    pub fn is_binary_extension(ext: &str) -> bool {
+        Self::BINARY_EXTENSIONS.contains(&ext.to_lowercase().as_str())
+    }
+
+    /// Get the programming language based on   file extension
+    pub fn get_language(ext: &str) -> Option<&'static str> {
+        Self::LANGUAGE_MAP
+            .iter()
+            .find(|(e, _)| *e == ext.to_lowercase())
+            .map(|(_, lang)| *lang)
+    }
+
+    /// Get comment markers for a given language
+    pub fn get_comment_markers(language: &str) -> Option<&'static [&'static str]> {
+        Self::COMMENT_MARKERS
+            .iter()
+            .find(|(lang, _)| *lang == language)
+            .map(|(_, markers)| *markers)
+    }
 }

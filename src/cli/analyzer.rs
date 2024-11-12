@@ -5,10 +5,11 @@ use std::{
 };
 
 use super::constants::Constants;
+use super::stats::Stats;
 
 /// Analyze a file to count total lines and comment lines based on file extension.
 /// Returns the file name, total line count, and comment line count.
-pub fn analyze_file(file_path: &Path) -> Result<(String, usize, usize)> {
+pub fn analyze_file(file_path: &Path, stats: &mut Stats) -> Result<()> {
     // Extract file extension and determine language
     let extension = file_path
         .extension()
@@ -48,12 +49,20 @@ pub fn analyze_file(file_path: &Path) -> Result<(String, usize, usize)> {
         {
             comment_count += 1;
         }
+
+        // update the overall stats
+        stats.total_files += 1;
+        stats.total_lines += line_count;
+        stats.comment_lines += comment_count;
+        stats.code_lines += line_count - comment_count;
     }
 
-    let file_name = file_path
-        .file_name() // Extract the file name
-        .and_then(|name| name.to_str()) // Convert OsStr to &str
-        .unwrap_or("Unknown file");
     // Return the file name (as a string), total lines, and comment lines
-    Ok((file_name.to_string(), line_count, comment_count))
+
+    // Get the language and update language stats
+    if let Some(lang) = language {
+        *stats.language_stats.entry(lang.to_string()).or_insert(0) += 1;
+    }
+
+    Ok(())
 }

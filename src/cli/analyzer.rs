@@ -52,9 +52,9 @@ pub fn analyze_file(file_path: &Path, stats: &mut Stats) -> Result<()> {
 
         // update the overall stats
         stats.total_files += 1;
-        stats.total_lines += line_count;
-        stats.comment_lines += comment_count;
-        stats.code_lines += line_count - comment_count;
+        stats.total_lines = line_count;
+        stats.comment_lines = comment_count;
+        stats.code_lines = line_count - comment_count;
     }
 
     // Return the file name (as a string), total lines, and comment lines

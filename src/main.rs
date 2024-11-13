@@ -10,12 +10,16 @@ fn main() {
     let project_path = cli::parse_flags();
 
     print_scanning_message(&project_path.to_string_lossy());
-
+    let mut stats = cli::stats::Stats::default(); // Create a mutable Stats instance
     let result = if project_path.is_file() {
-        cli::analyze_single_file(&project_path) // Analyze the single file
+        // Analyze the single file if it's a file
+        cli::analyzer::analyze_file(&project_path, &mut stats)
+    } else if project_path.is_dir() {
+        // If it's a directory, analyze the whole folder
+        cli::analyzer::analyze_folder(&project_path, &mut stats)
     } else {
         eprintln!(
-            "{} '{}' is not a valid file",
+            "{} '{}' is not a valid file or directory",
             "❌ Error:".red(),
             project_path.to_string_lossy()
         );
@@ -23,9 +27,9 @@ fn main() {
     };
 
     match result {
-        Ok(stats) => {
+        Ok(()) => {
             let duration = start_time.elapsed().as_secs_f64();
-            print_summary(&stats, duration);
+            print_summary(&stats, duration); // Pass the mutable reference of stats
 
             // Exit with success
             println!("\n{} Analysis completed successfully!", "✨".green());

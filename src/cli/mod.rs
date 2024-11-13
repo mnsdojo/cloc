@@ -27,13 +27,7 @@ pub fn analyze_single_file(file_path: &Path) -> Result<Stats, io::Error> {
     };
 
     match analyzer::analyze_file(file_path, &mut stats) {
-        Ok(()) => {
-            println!("File: {}", file_path.display());
-            println!("Total lines: {}", stats.total_lines);
-            println!("Code lines: {}", stats.code_lines);
-            println!("Comment lines: {}", stats.comment_lines);
-            println!("Blank lines: {}", stats.blank_lines);
-        }
+        Ok(_) => {},
         Err(e) => {
             eprintln!("Error analyzing file {}: {}", file_path.display(), e);
             return Err(e);

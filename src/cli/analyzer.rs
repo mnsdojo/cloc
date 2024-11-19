@@ -1,15 +1,15 @@
 use std::{
     fs::{self, File},
-    io::{self, BufRead, BufReader, Result},
+    io::{self, BufRead, BufReader},
     path::Path,
 };
 
-use super::stats::Stats;
 use super::constants::Constants;
+use super::stats::{LanguageStats, Stats};
 
-/// Analyze a file to count total lines and comment lines based on file extension.
-/// Returns the file name, total line count, and comment line count.
-pub fn analyze_file(file_path: &Path, stats: &mut Stats) -> Result<()> {
+/// Analyze a file to count total lines, code lines, comment lines, and blank lines based on file extension.
+/// Returns the file name, total line count, code line count, and comment line count.
+pub fn analyze_file(file_path: &Path, stats: &mut Stats) -> io::Result<()> {
     // Extract file extension and determine language
     let extension = file_path
         .extension()
@@ -30,17 +30,22 @@ pub fn analyze_file(file_path: &Path, stats: &mut Stats) -> Result<()> {
     let reader = BufReader::new(file);
 
     let mut line_count = 0;
+    let mut code_count = 0;
     let mut comment_count = 0;
+    let mut blank_count = 0;
 
     for line in reader.lines() {
         let line = line?;
         let trimmed_line = line.trim();
 
         if trimmed_line.is_empty() {
+            blank_count += 1;
+            stats.blank_lines += 1;
             continue;
         }
 
         line_count += 1;
+        stats.total_lines += 1;
 
         // Check if the line starts with any comment prefix
         if comment_prefixes
@@ -48,20 +53,27 @@ pub fn analyze_file(file_path: &Path, stats: &mut Stats) -> Result<()> {
             .any(|&prefix| trimmed_line.starts_with(prefix))
         {
             comment_count += 1;
+            stats.comment_lines += 1;
+        } else {
+            code_count += 1;
+            stats.code_lines += 1;
         }
-
-        // update the overall stats
-        stats.total_files += 1;
-        stats.total_lines = line_count;
-        stats.comment_lines = comment_count;
-        stats.code_lines = line_count - comment_count;
     }
 
-    // Return the file name (as a string), total lines, and comment lines
+    // Update the overall stats
+    stats.total_files += 1;
 
-    // Get the language and update language stats
+    // Update language-specific statistics
     if let Some(lang) = language {
-        *stats.language_stats.entry(lang.to_string()).or_insert(0) += 1;
+        let lang_stats = stats
+            .language_stats
+            .entry(lang.to_string())
+            .or_insert_with(LanguageStats::default);
+        lang_stats.total_lines += line_count;
+        lang_stats.code_lines += code_count;
+        lang_stats.comment_lines += comment_count;
+        lang_stats.blank_lines += blank_count;
+        lang_stats.file_count += 1;
     }
 
     Ok(())
@@ -69,8 +81,8 @@ pub fn analyze_file(file_path: &Path, stats: &mut Stats) -> Result<()> {
 
 /// Analyze a folder and its contents, including subdirectories.
 /// Skips excluded files/folders and analyzes supported file types.
-pub fn analyze_folder(folder_path: &Path, stats: &mut Stats) -> Result<()> {
-    // Validate if the path is a valid directory using the utility function
+pub fn analyze_folder(folder_path: &Path, stats: &mut Stats) -> io::Result<()> {
+    // Validate if the path is a valid directory
     if !folder_path.is_dir() {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
@@ -84,16 +96,13 @@ pub fn analyze_folder(folder_path: &Path, stats: &mut Stats) -> Result<()> {
         let entry_path = entry.path();
 
         // Skip excluded files and directories
-        if Constants::EXCLUDED_FILES_AND_FOLDERS
-            .iter()
-            .any(|&exclude| {
-                entry_path
-                    .file_name()
-                    .map(|name| name.to_string_lossy().contains(exclude))
-                    .unwrap_or(false)
-            })
-        {
-            continue;
+        if let Some(name) = entry_path.file_name() {
+            if Constants::EXCLUDED_FILES_AND_FOLDERS
+                .iter()
+                .any(|&exclude| name.to_string_lossy().contains(exclude))
+            {
+                continue;
+            }
         }
 
         if entry_path.is_dir() {
@@ -102,10 +111,12 @@ pub fn analyze_folder(folder_path: &Path, stats: &mut Stats) -> Result<()> {
         } else if entry_path.is_file() {
             // Only analyze supported files
             if let Some(ext) = entry_path.extension() {
-                if let Some(_) = Constants::get_language(&ext.to_str().unwrap_or_default()) {
-                    if !Constants::is_binary_extension(&ext.to_str().unwrap_or_default()) {
-                        // Analyze the valid file
-                        analyze_file(&entry_path, stats)?;
+                if !ext.to_str().unwrap_or("").is_empty() {
+                    if let Some(_) = Constants::get_language(&ext.to_str().unwrap_or_default()) {
+                        if !Constants::is_binary_extension(&ext.to_str().unwrap_or_default()) {
+                            // Analyze the valid file
+                            analyze_file(&entry_path, stats)?;
+                        }
                     }
                 }
             }

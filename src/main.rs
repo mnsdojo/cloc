@@ -3,6 +3,7 @@ use std::{process::exit, time::Instant};
 use cli::color::Color as _;
 
 mod cli;
+
 fn main() {
     print_banner();
 
@@ -72,6 +73,7 @@ fn print_summary(stats: &cli::stats::Stats, duration: f64) {
     println!("\n{}", "📈 Analysis Results:".green());
     println!("{}", "----------------------------------------".blue());
 
+    // Print the overall stats
     println!(
         "{:<20} {:>10}",
         "Total Files:".yellow(),
@@ -98,13 +100,43 @@ fn print_summary(stats: &cli::stats::Stats, duration: f64) {
         stats.total_lines.to_string().cyan()
     );
 
+    // Print language-specific breakdown
     println!("\n{}", "📊 Language Breakdown:".green());
     println!("{}", "----------------------------------------".blue());
 
-    for (lang, count) in &stats.language_stats {
-        println!("{:<20} {:>10}", lang.yellow(), count.to_string().cyan());
+    for (lang, lang_stats) in &stats.language_stats {
+        // Print language name once
+        println!("{}", format!("{}:", lang).yellow());
+        // Print all stats for the language
+        println!(
+            "{:<20} {:>10}",
+            "Total Lines".yellow(),
+            lang_stats.total_lines.to_string().cyan()
+        );
+        println!(
+            "{:<20} {:>10}",
+            "Code Lines".yellow(),
+            lang_stats.code_lines.to_string().cyan()
+        );
+        println!(
+            "{:<20} {:>10}",
+            "Comment Lines".yellow(),
+            lang_stats.comment_lines.to_string().cyan()
+        );
+        println!(
+            "{:<20} {:>10}",
+            "Blank Lines".yellow(),
+            lang_stats.blank_lines.to_string().cyan()
+        );
+        println!(
+            "{:<20} {:>10}",
+            "Files".yellow(),
+            lang_stats.file_count.to_string().cyan()
+        );
+        println!("{}", "----------------------------------------".blue());
     }
 
+    // Print performance information
     println!("\n{}", "⚡ Performance:".green());
     println!("{}", "----------------------------------------".blue());
     println!("{:<20} {:>10.2}s", "Analysis Time:".yellow(), duration);

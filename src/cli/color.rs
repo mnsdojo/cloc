@@ -4,8 +4,6 @@ pub trait Color {
     fn yellow(self) -> String;
     fn blue(self) -> String;
     fn cyan(self) -> String; // Added cyan for more styling options
-    fn bold(self) -> String;
-    fn reset(self) -> String;
 }
 
 impl<T> Color for T
@@ -26,11 +24,5 @@ where
     }
     fn cyan(self) -> String {
         format!("\x1b[36m{}\x1b[0m", self.to_string())
-    }
-    fn bold(self) -> String {
-        format!("\x1b[1m{}\x1b[0m", self.to_string())
-    }
-    fn reset(self) -> String {
-        format!("\x1b[0m{}", self.to_string())
     }
 }

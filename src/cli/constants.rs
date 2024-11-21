@@ -110,9 +110,9 @@ impl Constants {
         "a", "lib", "out",
     ];
 
-    pub const MIN_FILE_SIZE: u64 = 1; // Skip empty files
+    // pub const MIN_FILE_SIZE: u64 = 1; // Skip empty files
 
-    pub const MAX_FILE_SIZE: u64 = 10 * 1024 * 1024;
+    // pub const MAX_FILE_SIZE: u64 = 10 * 1024 * 1024;
 
     /// Files and directories to exclude from analysis
     pub const EXCLUDED_FILES_AND_FOLDERS: &[&'static str] = &[
@@ -182,3 +182,4 @@ impl Constants {
             .map(|(_, markers)| *markers)
     }
 }
+

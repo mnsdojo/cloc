@@ -5,10 +5,8 @@ use std::{
 };
 
 use super::constants::Constants;
-use super::stats::{LanguageStats, Stats};
+use super::stats::Stats;
 
-/// Analyze a file to count total lines, code lines, comment lines, and blank lines based on file extension.
-/// Returns the file name, total line count, code line count, and comment line count.
 pub fn analyze_file(file_path: &Path, stats: &mut Stats) -> io::Result<()> {
     // Extract file extension and determine language
     let extension = file_path
@@ -65,10 +63,8 @@ pub fn analyze_file(file_path: &Path, stats: &mut Stats) -> io::Result<()> {
 
     // Update language-specific statistics
     if let Some(lang) = language {
-        let lang_stats = stats
-            .language_stats
-            .entry(lang.to_string())
-            .or_insert_with(LanguageStats::default);
+        let lang_stats = stats.language_stats.entry(lang.to_string()).or_default();
+
         lang_stats.total_lines += line_count;
         lang_stats.code_lines += code_count;
         lang_stats.comment_lines += comment_count;
@@ -89,13 +85,10 @@ pub fn analyze_folder(folder_path: &Path, stats: &mut Stats) -> io::Result<()> {
             "Not a valid directory",
         ));
     }
-
-    // Iterate over the directory contents
     for entry in fs::read_dir(folder_path)? {
         let entry = entry?;
         let entry_path = entry.path();
 
-        // Skip excluded files and directories
         if let Some(name) = entry_path.file_name() {
             if Constants::EXCLUDED_FILES_AND_FOLDERS
                 .iter()
@@ -106,17 +99,13 @@ pub fn analyze_folder(folder_path: &Path, stats: &mut Stats) -> io::Result<()> {
         }
 
         if entry_path.is_dir() {
-            // Recursively analyze subdirectories
             analyze_folder(&entry_path, stats)?;
         } else if entry_path.is_file() {
-            // Only analyze supported files
             if let Some(ext) = entry_path.extension() {
                 if !ext.to_str().unwrap_or("").is_empty() {
-                    if let Some(_) = Constants::get_language(&ext.to_str().unwrap_or_default()) {
-                        if !Constants::is_binary_extension(&ext.to_str().unwrap_or_default()) {
-                            // Analyze the valid file
-                            analyze_file(&entry_path, stats)?;
-                        }
+                    let x = &ext.to_str().unwrap_or_default();
+                    if Constants::get_language(x).is_some() && !Constants::is_binary_extension(x) {
+                        analyze_file(&entry_path, stats)?;
                     }
                 }
             }

@@ -2,7 +2,6 @@ use std::path::PathBuf;
 pub mod analyzer;
 pub mod color;
 pub mod constants;
-pub mod github;
 pub mod stats;
 
 use std::env;

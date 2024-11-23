@@ -2,9 +2,17 @@
 name = "cloc"
 version = "0.1.0"
 edition = "2021"
+repository = "https://github.com/mnsdojo/cloc"
+description = "A simple tool that provides statistics about your code, such as the number of lines of code, and more."
+
 
 [dependencies]
 reqwest = { version = "0.11.24", features = ["json"] }
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.114"
 tokio = { version = "1.36.0", features = ["full"] }
+
+
+[[bin]]
+name = "cloc"
+path = "src/main.rs"
